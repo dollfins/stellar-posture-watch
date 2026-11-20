@@ -220,6 +220,11 @@ def check_text_input(name: str, value: str, problems: list[str]) -> None:
         problems.append(f"{name} carries a control character or a line break")
 
 
+def check_boolean(name: str, value: str, problems: list[str]) -> None:
+    if value not in ("true", "false"):
+        problems.append(f"{name} must be true or false, got {value}")
+
+
 def validate(args: argparse.Namespace) -> list[str]:
     problems: list[str] = []
     if not SHA40.match(args.gauge_ref):
@@ -233,6 +238,9 @@ def validate(args: argparse.Namespace) -> list[str]:
         problems.append(f"fail-on {args.fail_on!r} must be high or warn")
     check_text_input("issue-label", args.issue_label, problems)
     check_text_input("title", args.title, problems)
+    check_boolean("break-build", args.break_build, problems)
+    check_boolean("dry-run", args.dry_run, problems)
+    check_boolean("update-on-no-change", args.update_on_no_change, problems)
     config = check_config_path(args.config, problems)
     if config is not None:
         check_policy(config, problems)
@@ -247,6 +255,9 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--fail-on", dest="fail_on", default="high")
     parser.add_argument("--issue-label", dest="issue_label", default="account-posture")
     parser.add_argument("--title", default="Account posture watch")
+    parser.add_argument("--break-build", default="false")
+    parser.add_argument("--dry-run", default="false")
+    parser.add_argument("--update-on-no-change", default="false")
     return parser.parse_args(argv)
 
 

@@ -15,7 +15,7 @@ G4 are closed below, on the runs and on the reading of the body against the repo
 and 3.4 did not close it: one maintainer wrote both callers. Every claim here names the run or
 the file it was read from.
 
-Last updated: 2026-11-20T02:26Z (close 9.8-9.10, output atomicity, token masking, pull_request guard)
+Last updated: 2026-11-20T16:57Z (close 9.11-9.14, preflight and workflow guards)
 rather than three, because a contributor who picked up two of them learned no format at all. The
 organization's `ISSUE_CONTRACT.md` in `posture-sec/.github` defines PI-1: a marker line naming the
 repository, the roadmap row, the kind and the wave tier, then nine numbered sections in the order a
@@ -655,6 +655,10 @@ it is why this repository's value right now is the plumbing rather than the find
 - [x] **9.8** Stage body and summary through temporary files and atomic replace. Done-when: `scripts/render_report.py` stages both output files in their target directory, replaces the body first and the summary second so the summary is the commit point, removes every temporary if staging fails while leaving existing files untouched, docstring records the atomic commit point, and `tests/test_output_atomicity.py` verifies cleanup and staging invariants. **Issue:** #47.
 - [x] **9.9** Mask caller-supplied github-token before any step logs it. Done-when: `action.yml` opens `steps:` with a token masking step whose `run:` contains no expression interpolation, handles an empty token without failing, precedes every step binding `POSTURE_WATCH_TOKEN`, passes `check_action.py`, and `tests/test_action_token_masking.py` verifies ordering and execution. **Issue:** #64.
 - [x] **9.10** Refuse pull_request event without dry-run: true. Done-when: `action.yml` adds a guard step before Gauge checkout that exits 2 with a single-line stderr error if event is `pull_request` and `dry-run` is not `true`, allows `pull_request` with `dry-run: true`, allows other events, and `tests/test_action_event_guard.py` verifies the event matrix. **Issue:** #65.
+- [x] **9.11** Refuse invalid boolean inputs before Gauge checkout. Done-when: preflight receives `break-build`, `dry-run`, and `update-on-no-change` through quoted environment arguments, defaults each to `false`, and refuses every value except exact `true` or `false` with the existing refusal banner. `tests/test_workflows_boolean_inputs.py` exercises all three flags and the actual preflight shell block. Locally, `break-build: yes` exits 2 before the later checkout. **Issue:** #81.
+- [x] **9.12** Keep the example action reference as an explained placeholder. Done-when: `tests/test_example_pin_placeholder.py` finds exactly one placeholder reference and its adjacent full-sha and tag-risk explanation, and refuses both a tag and a real sha with file and line. Both mutations were observed locally; `example/workflow.yml` is unchanged. **Issue:** #84.
+- [x] **9.13** Require sha-pinned workflow actions with version comments. Done-when: `tests/test_workflows_pins.py` walks workflow `.yml` files, reuses `SHA_PIN`, accepts local actions, and refuses a floating tag or an uncommented sha with file and line. All 17 current references pass locally and both mutations fail; no workflow action pin changed. **Issue:** #91.
+- [x] **9.14** Cancel superseded pull request CI runs. Done-when: workflow-level concurrency in `ci.yml` groups by workflow and ref and cancels in progress only for pull requests; `tests/test_ci_concurrency.py` checks the block and rejects altered forms. The test failed before the block and passed locally afterward. CI does not write issues, unlike `watch.yml`; GitHub may still replace an older pending main run. **Issue:** #93.
 
 ## 6. Gates
 
@@ -721,7 +725,7 @@ it is why this repository's value right now is the plumbing rather than the find
 | 1 | The action | 11 | 11 | 100% |
 | 2 | Public shape | 12 | 13 | 92% |
 | 3 | Real use | 5 | 8 | 62% |
-| 9 (backlog) | Backlog, not scheduled | 4 | 10 | 40% |
+| 9 (backlog) | Backlog, not scheduled | 8 | 14 | 57% |
 | **All phases** | **Readiness total** | **35** | **39** | **90%** |
 | Gates | G1 to G5 | 4 | 5 | 80% |
 <!-- PROGRESS:END -->
@@ -754,6 +758,7 @@ it is why this repository's value right now is the plumbing rather than the find
 | 2026-11-09 | Task 2.9 closes: `site/` arrives with a Web3 Sentinel documentation and showcase site, featuring an interactive workflow generator, live issue preview simulator, and protocol architecture pipeline. `.github/workflows/pages.yml` deploys the site to GitHub Pages. Downstream action step execution guards and token redactions included in the same changeset. | 2.9 |
 | 2026-11-14 | Task 9.7 closes: `tests/fixtures/README.md` gains a `sha256` column binding all six JSON report fixtures to their provenance rows while leaving the six fixture files and `tests/test_render_report.py` untouched, and `tests/test_fixture_manifest.py` adds 9 stdlib tests plus `--print-rows` to verify column shape, row coverage, `derived` markers on hand-built reports, and raw-byte digests, printing both digests and the regeneration command on a mismatch. Suite moves from 185 to 194 cases; `ruff` and `mypy` check 11 source files cleanly. | 9.7 |
 | 2026-11-20 | Tasks 9.8, 9.9, and 9.10 close: `scripts/render_report.py` stages outputs through temporary files and replaces body before summary; `action.yml` adds runner token masking as the first composite step and an event guard refusing non-dry pull_request runs before checkout; 3 new unit test modules (`test_output_atomicity.py`, `test_action_token_masking.py`, `test_action_event_guard.py`) add 8 test cases. | 9.8, 9.9, 9.10 |
+| 2026-11-20T16:57Z | Tasks 9.11–9.14 close locally: preflight rejects non-boolean spellings before Gauge checkout; tests protect the example placeholder and all workflow action pins; CI cancels superseded pull request runs. The Python 3.12 suite passed 220 tests, including the mutation and before/after checks. README metrics discovery now includes the repository root, so it counts importable tests rather than import failures. | 9.11, 9.12, 9.13, 9.14 |
 
 ## 9. Last updated line format
 

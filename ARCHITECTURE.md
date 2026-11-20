@@ -72,6 +72,7 @@ Exit 0 or 2. It checks the Action's own surface, not Gauge's:
 - `gauge-ref` is exactly 40 hex characters; `gauge-repo` is `owner/name` of safe segments.
 - `fail-on` is `high` or `warn`; label and title are non-empty, at most 256 characters, and
   carry no control character or newline.
+- `break-build`, `dry-run`, and `update-on-no-change` are exactly `true` or `false`.
 - `config` is a path inside the workspace: not absolute, no `..` segment, existing, a regular
   file, at most 1 MiB.
 - The policy file itself parses as TOML with `version = 1`, names a network, lists https

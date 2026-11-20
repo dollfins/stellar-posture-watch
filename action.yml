@@ -97,6 +97,9 @@ runs:
         FAIL_ON: ${{ inputs.fail-on }}
         ISSUE_LABEL: ${{ inputs.issue-label }}
         TITLE: ${{ inputs.title }}
+        BREAK_BUILD: ${{ inputs.break-build }}
+        DRY_RUN: ${{ inputs.dry-run }}
+        UPDATE_ON_NO_CHANGE: ${{ inputs.update-on-no-change }}
       run: |
         python3 "$GITHUB_ACTION_PATH/scripts/validate_inputs.py" \
           --config "$CONFIG" \
@@ -104,7 +107,10 @@ runs:
           --gauge-ref "$GAUGE_REF" \
           --fail-on "$FAIL_ON" \
           --issue-label "$ISSUE_LABEL" \
-          --title "$TITLE"
+          --title "$TITLE" \
+          --break-build="$BREAK_BUILD" \
+          --dry-run="$DRY_RUN" \
+          --update-on-no-change="$UPDATE_ON_NO_CHANGE"
 
     - name: Guard against non-dry pull_request runs
       shell: bash
